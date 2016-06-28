@@ -76,25 +76,40 @@ void scaleData() {
 }
 
 void sendSerial() {
-  byte outgoingBytes[15] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-  outgoingBytes[0] = leftArmX;
-  outgoingBytes[1] = leftArmY;
-  outgoingBytes[2] = leftArmZ;
-  outgoingBytes[3] = rightArmX;
-  outgoingBytes[4] = rightArmY;
-  outgoingBytes[5] = rightArmZ;
-  outgoingBytes[6] = leftLegX;
-  outgoingBytes[7] = leftLegY;
-  outgoingBytes[8] = leftLegZ;
-  outgoingBytes[9] = rightLegX;
-  outgoingBytes[10] = rightLegY;
-  outgoingBytes[11] = rightLegZ;
-  outgoingBytes[12] = gyroX;
-  outgoingBytes[13] = gyroY;
-  outgoingBytes[14] = gyroZ;
+  byte outgoingBytes[30] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  outgoingBytes[0] = leftArmX << 8;
+  outgoingBytes[1] = leftArmX & B11111111;
+  outgoingBytes[2] = leftArmY << 8;
+  outgoingBytes[3] = leftArmY & B11111111;
+  outgoingBytes[4] = leftArmZ << 8;
+  outgoingBytes[5] = leftArmZ & B11111111;
+  outgoingBytes[6] = rightArmX << 8;
+  outgoingBytes[7] = rightArmX & B11111111;
+  outgoingBytes[8] = rightArmY << 8;
+  outgoingBytes[9] = rightArmY & B11111111;
+  outgoingBytes[10] = rightArmZ << 8;
+  outgoingBytes[11] = rightArmZ & B11111111;
+  outgoingBytes[12] = leftLegX << 8;
+  outgoingBytes[13] = leftLegX & B11111111;
+  outgoingBytes[14] = leftLegY << 8;
+  outgoingBytes[15] = leftLegY & B11111111;
+  outgoingBytes[16] = leftLegZ << 8;
+  outgoingBytes[17] = leftLegZ & B11111111;
+  outgoingBytes[18] = rightLegX << 8;
+  outgoingBytes[19] = rightLegx & B11111111;
+  outgoingBytes[20] = rightLegY << 8;
+  outgoingBytes[21] = rightLegY & B11111111;
+  outgoingBytes[22] = rightLegZ << 8;
+  outgoingBytes[23] = rightLegZ & B11111111;
+  outgoingBytes[24] = gyroX << 8;
+  outgoingBytes[25] = gyroX & B11111111;
+  outgoingBytes[26] = gyroY << 8;
+  outgoingBytes[27] = gyroy & B11111111;
+  outgoingBytes[28] = gyroZ << 8;
+  outgoingBytes[29] = gyroZ & B11111111;
 
   xbee.print("#");
-  for(int i = 0; i < 15; i++) {
+  for(int i = 0; i < 30; i++) {
     xbee.write(outgoingBytes[i]);
     xbee.print(",");
   xbee.print("!");
