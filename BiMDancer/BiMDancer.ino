@@ -96,7 +96,7 @@ void sendSerial() {
   outgoingBytes[16] = leftLegZ << 8;
   outgoingBytes[17] = leftLegZ & B11111111;
   outgoingBytes[18] = rightLegX << 8;
-  outgoingBytes[19] = rightLegx & B11111111;
+  outgoingBytes[19] = rightLegX & B11111111;
   outgoingBytes[20] = rightLegY << 8;
   outgoingBytes[21] = rightLegY & B11111111;
   outgoingBytes[22] = rightLegZ << 8;
@@ -104,7 +104,7 @@ void sendSerial() {
   outgoingBytes[24] = gyroX << 8;
   outgoingBytes[25] = gyroX & B11111111;
   outgoingBytes[26] = gyroY << 8;
-  outgoingBytes[27] = gyroy & B11111111;
+  outgoingBytes[27] = gyroY & B11111111;
   outgoingBytes[28] = gyroZ << 8;
   outgoingBytes[29] = gyroZ & B11111111;
 
@@ -112,5 +112,6 @@ void sendSerial() {
   for(int i = 0; i < 30; i++) {
     xbee.write(outgoingBytes[i]);
     xbee.print(",");
+  }
   xbee.print("!");
 }
