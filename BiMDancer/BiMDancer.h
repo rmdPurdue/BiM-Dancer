@@ -1,0 +1,30 @@
+struct message {
+  byte startDelimiter;
+  byte lengthMSB;
+  byte lengthLSB;
+  byte frameType;
+  byte frameID;
+  byte longAddress1;
+  byte longAddress2;
+  byte longAddress3;
+  byte longAddress4;
+  byte longAddress5;
+  byte longAddress6;
+  byte longAddress7;
+  byte longAddress8;
+  byte shortAddress1;
+  byte shortAddress2;
+  byte broadcastRadius;
+  byte options;
+  byte payload1;
+  byte payload2;
+  byte payload3;
+  byte payload4;
+  byte payload5;
+  byte payload6;
+  byte payload7;
+  byte payload8;
+  byte checksum;
+};
+
+typedef struct message MESSAGE;
