@@ -1,10 +1,9 @@
 #include <Printers.h>
 #include <XBee.h>
-//#include <SoftwareSerial.h>
+#include <SoftwareSerial.h>
 #include <L3G4200D.h>
 #include <Adafruit_ADS1015.h>
 #include <Wire.h>
-#include "BiMDancer.h"
 
 /**************************************************
 *                                                 *
@@ -18,7 +17,7 @@
 *                                                 *
 **************************************************/
 
-//SoftwareSerial xbee(9,10);
+SoftwareSerial xbeePort(9,10); // Use 10,11 when testing on Mega
 
 Adafruit_ADS1115 leftArm(0x48);
 Adafruit_ADS1115 rightArm(0x49);
@@ -31,18 +30,20 @@ XBeeAddress64 addr64 = XBeeAddress64(0x0013a200, 0x40a71640);
 ZBTxRequest zbTx = ZBTxRequest(addr64, payload, sizeof(payload));
 ZBTxStatusResponse txStatus = ZBTxStatusResponse();
 
-
 int16_t leftArmX, leftArmY, leftArmZ, rightArmX, rightArmY, rightArmZ,
      leftLegX, leftLegY, leftLegZ, rightLegX, rightLegY, rightLegZ,
      gyroX, gyroY, gyroZ;
 
-
 void setup() {
-  Serial1.begin(57600);
+  xbeePort.begin(9600);
   Serial.begin(9600);
-  xbee.setSerial(Serial1);
+  xbee.setSerial(xbeePort);
   Wire.begin();
-//  gyro.initialize(2000);
+  leftArm.setGain(GAIN_ONE);
+  rightArm.setGain(GAIN_ONE);
+  leftLeg.setGain(GAIN_ONE);
+  rightLeg.setGain(GAIN_ONE);
+  gyro.initialize(2000);
 }
 
 void loop() {
@@ -130,22 +131,23 @@ void loop() {
   Serial.print(gyroY);
   Serial.print(" ");
   Serial.print(gyroZ);
-  
   Serial.println();
+
+
   xbee.send(zbTx);
   if(xbee.readPacket(500)) {
     if(xbee.getResponse().getApiId() == ZB_TX_STATUS_RESPONSE) {
       xbee.getResponse().getZBTxStatusResponse(txStatus);
       if(txStatus.getDeliveryStatus() == SUCCESS) {
-        Serial.println("Success");
+//        Serial.println("Success");
       } else {
-        Serial.println("Failure");
+//        Serial.println("Failure");
       }
     }
   }else if (xbee.getResponse().isError()) {
-    Serial.println("Error Reading Packet");
+//    Serial.println("Error Reading Packet");
   } else {
-    Serial.println("Local XBee slow to respond");
+//    Serial.println("Local XBee slow to respond");
   }
   
   delay(500);
