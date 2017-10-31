@@ -5,14 +5,19 @@
 #include <L3G4200D.h>
 #include <Adafruit_ADS1015.h>
 #include <Wire.h>
+#include "Network.h"
 
 /**************************************************
 *                                                 *
-*  BiMDancer provides processing for a suite of   *
-*  sensors embedded on a dancer's costume, that   *
-*  will read data from five sensors over an i2C   *
-*  network, and transmit that data wirelessly     *
-*  over a wireless network via OSC.               *
+*  BaMDancer provides processing for a suite of   *
+*  wearable sensors. The software initializes     *
+*  an i2C bus, and connects to ADS1115 ADC        *
+*  devices on the bus. These devices can connect  *
+*  to a variety of analog sensors.                *
+*                                                 *
+*  Once connected to the bus, the controller      *
+*  collects data, populates an OSC bundle, and    *
+*  transmits the bundle over a WiFi connection.   *
 *                                                 *
 *  (c) 2016 Rich Dionne                           *
 *                                                 *
@@ -26,12 +31,10 @@ const float NO_PRESSURE = 375;
 const float FULL_PRESSURE = 2400;
 const float GYRO_MIN = -15000;
 const float GYRO_MAX = 15000;
+const int powerLED = 0;
+const int wifiLED = 2;
 
-const char* ssid = "Metronet308";
-const char* password = "1350510rd";
 WiFiUDP Udp;
-byte outIP[] = { 10,168,193,112 };
-const unsigned int outPort = 8000;
 
 Adafruit_ADS1115 ADC1(0x48);
 Adafruit_ADS1115 ADC2(0x49);
@@ -51,6 +54,12 @@ void setup() {
   adc3Present = false;
   adc4Present = false;
   gyroPresent = false;
+
+  pinMode(powerLED, OUTPUT);
+  pinMode(wifiLED, OUTPUT);
+
+  digitalWrite(powerLED, LOW);
+  
   Serial.begin(9600);
   Serial.println();
   Serial.println();
@@ -59,15 +68,19 @@ void setup() {
   
   WiFi.begin(ssid, password);
 
+  boolean ledState = LOW;
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
+    digitalWrite(wifiLED, ledState);
+    ledState = !ledState;
   }
 
   Serial.println("");
   Serial.println("Wifi connected.");
   Serial.println("IP Address: ");
   Serial.println(WiFi.localIP());
+  digitalWrite(wifiLED, LOW);
 
   if(Udp.begin(outPort) == 1) {
     Serial.println("UDP Connection successful.");
@@ -168,25 +181,44 @@ void loop() {
 
 void sendBundleViaOSC() {
   OSCBundle bundle;
-  bundle.add("/dancer1/ADC1_0").add(scaleData(300, 0, 1024));
-  bundle.add("/dancer1/ADC1_1").add(scaleData(512, 0, 1024));
-  bundle.add("/dancer1/ADC1_2").add(scaleData(1024, 0, 1024));
-  bundle.add("/dancer1/ADC1_3").add(scaleData(ADC1_3, 0, 1024));
-  bundle.add("/dancer1/ADC2_0").add(scaleData(ADC2_0, 0, 1024));
-  bundle.add("/dancer1/ADC2_1").add(scaleData(ADC2_1, 0, 1024));
-  bundle.add("/dancer1/ADC2_2").add(scaleData(ADC2_2, 0, 1024));
-  bundle.add("/dancer1/ADC2_3").add(scaleData(ADC2_3, 0, 1024));
-  bundle.add("/dancer1/ADC3_0").add(scaleData(ADC3_0, 0, 1024));
-  bundle.add("/dancer1/ADC3_1").add(scaleData(ADC3_1, 0, 1024));
-  bundle.add("/dancer1/ADC3_2").add(scaleData(ADC3_2, 0, 1024));
-  bundle.add("/dancer1/ADC3_3").add(scaleData(ADC3_3, 0, 1024));
-  bundle.add("/dancer1/ADC4_0").add(scaleData(ADC4_0, 0, 1024));
-  bundle.add("/dancer1/ADC4_1").add(scaleData(ADC4_1, 0, 1024));
-  bundle.add("/dancer1/ADC4_2").add(scaleData(ADC4_2, 0, 1024));
-  bundle.add("/dancer1/ADC4_3").add(scaleData(ADC4_3, 0, 1024));
-  bundle.add("/dancer1/gyro_x").add(scaleData(gyroX, 0, 1024));
-  bundle.add("/dancer1/gyro_y").add(scaleData(gyroY, 0, 1024));
-  bundle.add("/dancer1/gyro_z").add(scaleData(gyroZ, 0, 1024));
+  strcpy(temp, url);
+  bundle.add(strcat(temp,"/ADC1_0")).add(scaleData(300, 0, 1024));
+  strcpy(temp, url);
+  bundle.add(strcat(temp,"/ADC1_1")).add(scaleData(512, 0, 1024));
+  strcpy(temp, url);
+  bundle.add(strcat(temp,"/ADC1_2")).add(scaleData(1024, 0, 1024));
+  strcpy(temp, url);
+  bundle.add(strcat(temp,"/ADC1_3")).add(scaleData(ADC1_3, 0, 1024));
+  strcpy(temp, url);
+  bundle.add(strcat(temp,"/ADC2_0")).add(scaleData(ADC2_0, 0, 1024));
+  strcpy(temp, url);
+  bundle.add(strcat(temp,"/ADC2_1")).add(scaleData(ADC2_1, 0, 1024));
+  strcpy(temp, url);
+  bundle.add(strcat(temp,"/ADC2_2")).add(scaleData(ADC2_2, 0, 1024));
+  strcpy(temp, url);
+  bundle.add(strcat(temp,"/ADC2_3")).add(scaleData(ADC2_3, 0, 1024));
+  strcpy(temp, url);
+  bundle.add(strcat(temp,"/ADC3_0")).add(scaleData(ADC3_0, 0, 1024));
+  strcpy(temp, url);
+  bundle.add(strcat(temp,"/ADC3_1")).add(scaleData(ADC3_1, 0, 1024));
+  strcpy(temp, url);
+  bundle.add(strcat(temp,"/ADC3_2")).add(scaleData(ADC3_2, 0, 1024));
+  strcpy(temp, url);
+  bundle.add(strcat(temp,"/ADC3_3")).add(scaleData(ADC3_3, 0, 1024));
+  strcpy(temp, url);
+  bundle.add(strcat(temp,"/ADC4_0")).add(scaleData(ADC4_0, 0, 1024));
+  strcpy(temp, url);
+  bundle.add(strcat(temp,"/ADC4_1")).add(scaleData(ADC4_1, 0, 1024));
+  strcpy(temp, url);
+  bundle.add(strcat(temp,"/ADC4_2")).add(scaleData(ADC4_2, 0, 1024));
+  strcpy(temp, url);
+  bundle.add(strcat(temp,"/ADC4_3")).add(scaleData(ADC4_3, 0, 1024));
+  strcpy(temp, url);
+  bundle.add(strcat(temp,"/gyro_x")).add(scaleData(gyroX, 0, 1024));
+  strcpy(temp, url);
+  bundle.add(strcat(temp,"/gyro_y")).add(scaleData(gyroY, 0, 1024));
+  strcpy(temp, url);
+  bundle.add(strcat(temp,"/gyro_z")).add(scaleData(gyroZ, 0, 1024));
   Udp.beginPacket(outIP, outPort);
   bundle.send(Udp);
   Udp.endPacket();
@@ -201,3 +233,13 @@ int scaleData(float val, float low, float hi) {
   if(byte > 255) byte = 255;
   return byte;
 }
+
+void blinkLED(int pin, int number) {
+  for(int i = 0 ; i < number; i++) {
+    digitalWrite(pin, LOW);
+    delay(500);
+    digitalWrite(pin, HIGH);
+    delay(500);
+  }
+}
+
