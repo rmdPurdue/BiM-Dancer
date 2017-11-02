@@ -1,4 +1,3 @@
-#include <OSCBundle.h>
 #include <OSCMessage.h>
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
@@ -175,55 +174,36 @@ void loop() {
     gyroZ = gyro.getZ();
   }
 
-  sendBundleViaOSC();
+  sendMessageViaOSC();
   delay(100);
 }
 
-void sendBundleViaOSC() {
-  OSCBundle bundle;
-  strcpy(temp, url);
-  bundle.add(strcat(temp,"/ADC1_0")).add(scaleData(300, 0, 1024));
-  strcpy(temp, url);
-  bundle.add(strcat(temp,"/ADC1_1")).add(scaleData(512, 0, 1024));
-  strcpy(temp, url);
-  bundle.add(strcat(temp,"/ADC1_2")).add(scaleData(1024, 0, 1024));
-  strcpy(temp, url);
-  bundle.add(strcat(temp,"/ADC1_3")).add(scaleData(ADC1_3, 0, 1024));
-  strcpy(temp, url);
-  bundle.add(strcat(temp,"/ADC2_0")).add(scaleData(ADC2_0, 0, 1024));
-  strcpy(temp, url);
-  bundle.add(strcat(temp,"/ADC2_1")).add(scaleData(ADC2_1, 0, 1024));
-  strcpy(temp, url);
-  bundle.add(strcat(temp,"/ADC2_2")).add(scaleData(ADC2_2, 0, 1024));
-  strcpy(temp, url);
-  bundle.add(strcat(temp,"/ADC2_3")).add(scaleData(ADC2_3, 0, 1024));
-  strcpy(temp, url);
-  bundle.add(strcat(temp,"/ADC3_0")).add(scaleData(ADC3_0, 0, 1024));
-  strcpy(temp, url);
-  bundle.add(strcat(temp,"/ADC3_1")).add(scaleData(ADC3_1, 0, 1024));
-  strcpy(temp, url);
-  bundle.add(strcat(temp,"/ADC3_2")).add(scaleData(ADC3_2, 0, 1024));
-  strcpy(temp, url);
-  bundle.add(strcat(temp,"/ADC3_3")).add(scaleData(ADC3_3, 0, 1024));
-  strcpy(temp, url);
-  bundle.add(strcat(temp,"/ADC4_0")).add(scaleData(ADC4_0, 0, 1024));
-  strcpy(temp, url);
-  bundle.add(strcat(temp,"/ADC4_1")).add(scaleData(ADC4_1, 0, 1024));
-  strcpy(temp, url);
-  bundle.add(strcat(temp,"/ADC4_2")).add(scaleData(ADC4_2, 0, 1024));
-  strcpy(temp, url);
-  bundle.add(strcat(temp,"/ADC4_3")).add(scaleData(ADC4_3, 0, 1024));
-  strcpy(temp, url);
-  bundle.add(strcat(temp,"/gyro_x")).add(scaleData(gyroX, 0, 1024));
-  strcpy(temp, url);
-  bundle.add(strcat(temp,"/gyro_y")).add(scaleData(gyroY, 0, 1024));
-  strcpy(temp, url);
-  bundle.add(strcat(temp,"/gyro_z")).add(scaleData(gyroZ, 0, 1024));
+// collapse this to a single message with multiple arguments
+
+void sendMessageViaOSC() {
+  OSCMessage message(url);
+  message.add(scaleData(300, 0, 1024));
+  message.add(scaleData(512, 0, 1024));
+  message.add(scaleData(1024, 0, 1024));
+  message.add(scaleData(ADC2_0, 0 , 1024));
+  message.add(scaleData(ADC2_1, 0 , 1024));
+  message.add(scaleData(ADC2_2, 0 , 1024));
+  message.add(scaleData(ADC2_3, 0 , 1024));
+  message.add(scaleData(ADC3_0, 0 , 1024));
+  message.add(scaleData(ADC3_1, 0 , 1024));
+  message.add(scaleData(ADC3_2, 0 , 1024));
+  message.add(scaleData(ADC3_3, 0 , 1024));
+  message.add(scaleData(ADC4_0, 0 , 1024));
+  message.add(scaleData(ADC4_1, 0 , 1024));
+  message.add(scaleData(ADC4_2, 0 , 1024));
+  message.add(scaleData(ADC4_3, 0 , 1024));
+  message.add(scaleData(gyroX, 0 , 1024));
+  message.add(scaleData(gyroY, 0 , 1024));
+  message.add(scaleData(gyroZ, 0 , 1024));
   Udp.beginPacket(outIP, outPort);
-  bundle.send(Udp);
+  message.send(Udp);
   Udp.endPacket();
-  OSCMessage message = bundle.getOSCMessage(0);
-  bundle.empty();
+  message.empty();
 }
 
 int scaleData(float val, float low, float hi) {
